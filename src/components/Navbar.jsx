@@ -46,14 +46,16 @@ const Navbar = ({ setCommandPaletteOpen }) => {
           Seth
         </Typography>
         
-        <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+        <Box sx={{ display: { xs: 'none', lg: 'block' } }}>
           <Button
             color="inherit"
             onClick={() => setCommandPaletteOpen(true)}
             sx={{ 
               mx: 1,
+              mt: 0.4,
               opacity: 0.7,
-              '&:hover': { opacity: 1 }
+              '&:hover': { opacity: 1 },
+              display: { xs: 'none', lg: 'inline-flex' }
             }}
           >
             Search
@@ -61,6 +63,7 @@ const Navbar = ({ setCommandPaletteOpen }) => {
               component="span"
               sx={{
                 ml: 1,
+                mt: 0.5,
                 px: 0.8,
                 py: 0.2,
                 borderRadius: 1,
@@ -91,7 +94,32 @@ const Navbar = ({ setCommandPaletteOpen }) => {
           </IconButton>
         </Box>
 
-        <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+        <Box sx={{ display: { xs: 'block', lg: 'none' } }}>
+          <Button
+            color="inherit"
+            onClick={() => setCommandPaletteOpen(true)}
+            sx={{ 
+              mr: 1,
+              opacity: 0.7,
+              '&:hover': { opacity: 1 }
+            }}
+          >
+            Search
+            <Typography
+              component="span"
+              sx={{
+                ml: 1,
+                mt: 0.5,
+                px: 0.8,
+                py: 0.2,
+                borderRadius: 1,
+                fontSize: '0.75rem',
+                backgroundColor: 'action.hover',
+              }}
+            >
+              {navigator.platform.includes('Mac') ? '⌘K' : 'Ctrl+K'}
+            </Typography>
+          </Button>
           <IconButton onClick={toggleColorMode} color="inherit" sx={{ mr: 1 }}>
             {mode === 'dark' ? <LightMode /> : <DarkMode />}
           </IconButton>
@@ -111,11 +139,22 @@ const Navbar = ({ setCommandPaletteOpen }) => {
         open={mobileOpen}
         onClose={handleDrawerToggle}
         sx={{
-          display: { xs: 'block', md: 'none' },
+          display: { xs: 'block', lg: 'none' },
           '& .MuiDrawer-paper': { width: 240 },
         }}
       >
         <List>
+          <ListItem disablePadding>
+            <ListItemButton onClick={() => {
+              setCommandPaletteOpen(true);
+              handleDrawerToggle();
+            }}>
+              <ListItemText 
+                primary="Search" 
+                secondary={navigator.platform.includes('Mac') ? '⌘K' : 'Ctrl+K'}
+              />
+            </ListItemButton>
+          </ListItem>
           {navItems.map((item) => (
             <ListItem key={item} disablePadding>
               <ListItemButton 
