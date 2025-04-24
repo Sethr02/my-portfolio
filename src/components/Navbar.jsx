@@ -15,16 +15,23 @@ import {
 } from '@mui/material';
 import { Menu as MenuIcon, DarkMode, LightMode } from '@mui/icons-material';
 import { ColorModeContext } from '../contexts/ColorModeContext';
+import { useAchievements } from '../contexts/AchievementsContext';
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { mode, toggleColorMode } = useContext(ColorModeContext);
+  const { unlockAchievement } = useAchievements();
   const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 0 });
 
   const navItems = ['about', 'skills', 'experience', 'projects', 'contact'];
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
+  };
+
+  const handleThemeChange = () => {
+    toggleColorMode();
+    unlockAchievement(mode === 'dark' ? 'EARLY_BIRD' : 'NIGHT_OWL');
   };
 
   return (
@@ -62,13 +69,13 @@ const Navbar = () => {
               {item}
             </Button>
           ))}
-          <IconButton onClick={toggleColorMode} color="inherit">
+          <IconButton onClick={handleThemeChange} color="inherit">
             {mode === 'dark' ? <LightMode /> : <DarkMode />}
           </IconButton>
         </Box>
 
         <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-          <IconButton onClick={toggleColorMode} color="inherit" sx={{ mr: 1 }}>
+          <IconButton onClick={handleThemeChange} color="inherit" sx={{ mr: 1 }}>
             {mode === 'dark' ? <LightMode /> : <DarkMode />}
           </IconButton>
           <IconButton
