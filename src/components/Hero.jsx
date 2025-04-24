@@ -1,8 +1,9 @@
-import { Box, Typography, Container, Button, Stack, useTheme } from '@mui/material';
+import { Box, Typography, Container, Button, Stack, useTheme, Grid } from '@mui/material';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import ParticleBackground from './ParticleBackground';
+import Terminal from './Terminal';
 
 const Hero = () => {
   const theme = useTheme();
@@ -84,109 +85,122 @@ const Hero = () => {
     >
       <ParticleBackground />
       <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
-        <Stack spacing={4} maxWidth="800px">
-          <motion.div
-            initial={{ y: 50, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-          >
-            <Typography 
-              variant="h1" 
-              component={motion.h1}
-              sx={{ 
-                fontSize: { xs: '3rem', md: '4.5rem' },
-                fontWeight: 700,
-                background: theme => theme.palette.mode === 'dark'
-                  ? 'linear-gradient(45deg, #60a5fa, #e879f9)'
-                  : 'linear-gradient(45deg, #1e40af, #7e22ce)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                color: 'transparent',
-                mb: 2,
-              }}
-            >
-              Hi, I'm Seth
-            </Typography>
-            <Typography 
-              variant="h2" 
-              sx={{ 
-                fontSize: { xs: '1.5rem', md: '2rem' },
-                mb: 1,
-                color: theme => theme.palette.mode === 'dark' 
-                  ? 'grey.300'
-                  : 'grey.800',
-                fontWeight: 500,
-              }}
-            >
-              {text}
-              {!textComplete && (
-                <motion.span
-                  animate={{ opacity: [1, 0] }}
-                  transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
-                >
-                  |
-                </motion.span>
-              )}
-            </Typography>
-            <Typography 
-              variant="h4"
-              sx={{ 
-                fontSize: { xs: '1rem', md: '1.25rem' },
-                mb: 4,
-                color: theme => theme.palette.mode === 'dark' 
-                  ? 'grey.400'
-                  : 'grey.700',
-                fontWeight: 400,
-              }}
-            >
-              {degreeText}
-              {!degreeTextComplete && (
-                <motion.span
-                  animate={{ opacity: [1, 0] }}
-                  transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
-                >
-                  |
-                </motion.span>
-              )}
-            </Typography>
-            <Stack direction="row" spacing={2}>
-              <Button 
-                variant="contained" 
-                size="large"
-                href="#projects"
-                sx={{
-                  borderRadius: '50px',
-                  px: 4,
-                  background: theme => theme.palette.mode === 'dark'
-                    ? 'linear-gradient(45deg, #60a5fa, #e879f9)'
-                    : 'linear-gradient(45deg, #1e40af, #7e22ce)',
-                  '&:hover': {
-                    transform: 'translateY(-2px)',
-                    boxShadow: 4,
-                  },
-                }}
+        <Grid container spacing={4} alignItems="center">
+          <Grid item xs={12} md={7}>
+            <Stack spacing={4}>
+              <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
               >
-                View My Work
-              </Button>
-              <Button 
-                variant="outlined" 
-                size="large"
-                href="#contact"
-                sx={{
-                  borderRadius: '50px',
-                  px: 4,
-                  borderWidth: 2,
-                  '&:hover': {
-                    borderWidth: 2,
-                    transform: 'translateY(-2px)',
-                  },
-                }}
-              >
-                Contact Me
-              </Button>
+                <Typography 
+                  variant="h1" 
+                  component={motion.h1}
+                  sx={{ 
+                    fontSize: { xs: '3rem', md: '4.5rem' },
+                    fontWeight: 700,
+                    background: theme => theme.palette.mode === 'dark'
+                      ? 'linear-gradient(45deg, #60a5fa, #e879f9)'
+                      : 'linear-gradient(45deg, #1e40af, #7e22ce)',
+                    backgroundClip: 'text',
+                    WebkitBackgroundClip: 'text',
+                    color: 'transparent',
+                    mb: 2,
+                  }}
+                >
+                  Hi, I'm Seth
+                </Typography>
+                <Typography 
+                  variant="h2" 
+                  sx={{ 
+                    fontSize: { xs: '1.5rem', md: '2rem' },
+                    mb: 1,
+                    color: theme => theme.palette.mode === 'dark' 
+                      ? 'grey.300'
+                      : 'grey.800',
+                    fontWeight: 500,
+                  }}
+                >
+                  {text}
+                  {!textComplete && (
+                    <motion.span
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
+                    >
+                      |
+                    </motion.span>
+                  )}
+                </Typography>
+                <Typography 
+                  variant="h4"
+                  sx={{ 
+                    fontSize: { xs: '1rem', md: '1.25rem' },
+                    mb: 4,
+                    color: theme => theme.palette.mode === 'dark' 
+                      ? 'grey.400'
+                      : 'grey.700',
+                    fontWeight: 400,
+                  }}
+                >
+                  {degreeText}
+                  {!degreeTextComplete && (
+                    <motion.span
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
+                    >
+                      |
+                    </motion.span>
+                  )}
+                </Typography>
+                <Stack direction="row" spacing={2}>
+                  <Button 
+                    variant="contained" 
+                    size="large"
+                    href="#projects"
+                    sx={{
+                      borderRadius: '50px',
+                      px: 4,
+                      background: theme => theme.palette.mode === 'dark'
+                        ? 'linear-gradient(45deg, #60a5fa, #e879f9)'
+                        : 'linear-gradient(45deg, #1e40af, #7e22ce)',
+                      '&:hover': {
+                        transform: 'translateY(-2px)',
+                        boxShadow: 4,
+                      },
+                    }}
+                  >
+                    View My Work
+                  </Button>
+                  <Button 
+                    variant="outlined" 
+                    size="large"
+                    href="#contact"
+                    sx={{
+                      borderRadius: '50px',
+                      px: 4,
+                      borderWidth: 2,
+                      '&:hover': {
+                        borderWidth: 2,
+                        transform: 'translateY(-2px)',
+                      },
+                    }}
+                  >
+                    Contact Me
+                  </Button>
+                </Stack>
+              </motion.div>
             </Stack>
-          </motion.div>
-        </Stack>
+          </Grid>
+          <Grid item xs={12} md={5}>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              <Terminal />
+            </motion.div>
+          </Grid>
+        </Grid>
       </Container>
       <motion.div
         animate={{ y: [0, 10, 0] }}
