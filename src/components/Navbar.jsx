@@ -16,7 +16,7 @@ import {
 import { Menu as MenuIcon, DarkMode, LightMode } from '@mui/icons-material';
 import { ColorModeContext } from '../contexts/ColorModeContext';
 
-const Navbar = () => {
+const Navbar = ({ setCommandPaletteOpen }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { mode, toggleColorMode } = useContext(ColorModeContext);
   const trigger = useScrollTrigger({ disableHysteresis: true, threshold: 0 });
@@ -47,6 +47,30 @@ const Navbar = () => {
         </Typography>
         
         <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+          <Button
+            color="inherit"
+            onClick={() => setCommandPaletteOpen(true)}
+            sx={{ 
+              mx: 1,
+              opacity: 0.7,
+              '&:hover': { opacity: 1 }
+            }}
+          >
+            Search
+            <Typography
+              component="span"
+              sx={{
+                ml: 1,
+                px: 0.8,
+                py: 0.2,
+                borderRadius: 1,
+                fontSize: '0.75rem',
+                backgroundColor: 'action.hover',
+              }}
+            >
+              {navigator.platform.includes('Mac') ? '⌘K' : 'Ctrl+K'}
+            </Typography>
+          </Button>
           {navItems.map((item) => (
             <Button 
               key={item}
