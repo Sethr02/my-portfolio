@@ -172,14 +172,20 @@ const SnakeGame = ({ isMuted }) => {
   };
 
   useEffect(() => {
-    migrateFromCookies(); // Run migration when component mounts
+    migrateFromCookies(); // Only need to run once
+  }, []);
+
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyPress);
     animationRef.current = requestAnimationFrame(gameLoop);
+    
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
-      cancelAnimationFrame(animationRef.current);
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+      }
     };
-  }, []); // Add empty dependency array to run only on mount
+  }, [direction, gameOver, snake, food, speed]);
 
   return (
     <Box sx={{
