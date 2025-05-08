@@ -1,36 +1,43 @@
 import { useEffect, useRef, useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
+import { setSecureItem, getSecureItem } from '../../utils/storage';
 
 const GRID_SIZE = 20;
 const CELL_SIZE = 20;
 const INITIAL_SPEED = 150;
-const SPEED_INCREMENT = 5; // Speed increases by 2ms per food eaten
-const MIN_SPEED = 50; // Fastest possible speed
-const MIN_FOOD_SIZE = 0.3; // Minimum food size (fraction of CELL_SIZE)
-const DEATH_FLASH_DURATION = 500; // Add this constant
+const SPEED_INCREMENT = 5;
+const MIN_SPEED = 50;
+const MIN_FOOD_SIZE = 0.3;
+const DEATH_FLASH_DURATION = 500;
 
 const SOUNDS = {
   eat: (() => { const audio = new Audio('/sounds/eat.mp3'); audio.volume = 0.1; return audio; })(),
-  die: new Audio('/sounds/die.wav'),
-  move: new Audio('/sounds/move.wav'),
+};
+
+const migrateFromCookies = () => {
+  const stored = document.cookie.split('; ').find(row => row.startsWith('snakeHighScore='));
+  if (stored) {
+    const score = parseInt(stored.split('=')[1]);
+    setSecureItem('snakeHighScore', score);
+    // Clear old cookie
+    document.cookie = 'snakeHighScore=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  }
 };
 
 const getHighScore = () => {
-  const stored = document.cookie.split('; ').find(row => row.startsWith('snakeHighScore='));
-  return stored ? parseInt(stored.split('=')[1]) : 0;
+  migrateFromCookies(); // Migrate any existing cookie data
+  return getSecureItem('snakeHighScore', 0);
 };
 
-const setHighScoreCookie = (score) => {
-  const date = new Date();
-  date.setFullYear(date.getFullYear() + 1);
-  document.cookie = `snakeHighScore=${score};expires=${date.toUTCString()};path=/`;
+const setHighScore = (score) => {
+  setSecureItem('snakeHighScore', score);
 };
 
-const SnakeGame = () => {
+const SnakeGame = ({ isMuted }) => {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(getHighScore);
+  const [highScore, setHighScoreState] = useState(getHighScore);
   const [gameOver, setGameOver] = useState(false);
   const [direction, setDirection] = useState('RIGHT');
   const [snake, setSnake] = useState([{ x: 10, y: 10 }]);
@@ -53,11 +60,23 @@ const SnakeGame = () => {
   };
 
   const handleKeyPress = (e) => {
-    switch (e.key) {
-      case 'ArrowUp': if (direction !== 'DOWN') { setDirection('UP'); SOUNDS.move.play(); } break;
-      case 'ArrowDown': if (direction !== 'UP') { setDirection('DOWN'); SOUNDS.move.play(); } break;
-      case 'ArrowLeft': if (direction !== 'RIGHT') { setDirection('LEFT'); SOUNDS.move.play(); } break;
-      case 'ArrowRight': if (direction !== 'LEFT') { setDirection('RIGHT'); SOUNDS.move.play(); } break;
+    switch (e.key.toLowerCase()) {
+      case 'arrowup':
+      case 'w':
+        if (direction !== 'DOWN') setDirection('UP');
+        break;
+      case 'arrowdown':
+      case 's':
+        if (direction !== 'UP') setDirection('DOWN');
+        break;
+      case 'arrowleft':
+      case 'a':
+        if (direction !== 'RIGHT') setDirection('LEFT');
+        break;
+      case 'arrowright':
+      case 'd':
+        if (direction !== 'LEFT') setDirection('RIGHT');
+        break;
     }
   };
 
@@ -115,12 +134,11 @@ const SnakeGame = () => {
 
     // Self collision (check against body segments only)
     if (newSnake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
-      SOUNDS.die.play();
       setDeathTime(Date.now());
       setGameOver(true);
       if (score > highScore) {
         setHighScore(score);
-        setHighScoreCookie(score);
+        setHighScoreState(score);
       }
       return;
     }
@@ -128,7 +146,7 @@ const SnakeGame = () => {
     newSnake.unshift(head);
 
     if (head.x === food.x && head.y === food.y) {
-      SOUNDS.eat.play();
+      if (!isMuted) SOUNDS.eat.play();
       setScore(score + 1);
       // Increase speed with score
       setSpeed(Math.max(MIN_SPEED, INITIAL_SPEED - score * SPEED_INCREMENT));
@@ -154,13 +172,14 @@ const SnakeGame = () => {
   };
 
   useEffect(() => {
+    migrateFromCookies(); // Run migration when component mounts
     window.addEventListener('keydown', handleKeyPress);
     animationRef.current = requestAnimationFrame(gameLoop);
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
       cancelAnimationFrame(animationRef.current);
     };
-  });
+  }, []); // Add empty dependency array to run only on mount
 
   return (
     <Box sx={{

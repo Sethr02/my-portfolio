@@ -2,10 +2,28 @@ import { Box, IconButton, Modal, Fade } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import VolumeUpIcon from '@mui/icons-material/VolumeUp';
 import VolumeOffIcon from '@mui/icons-material/VolumeOff';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import React from 'react';
+import { setSecureItem, getSecureItem } from '../../utils/storage';
+
+const getMutedState = () => {
+  return getSecureItem('gameMuted', true);
+};
+
+const setMutedState = (muted) => {
+  setSecureItem('gameMuted', muted);
+};
 
 const GameModal = ({ open, onClose, children }) => {
-  const [isMuted, setIsMuted] = useState(true);
+  const [isMuted, setIsMuted] = useState(getMutedState);
+
+  const handleMuteToggle = () => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    setMutedState(newMutedState);
+  };
+
+  const childrenWithProps = React.cloneElement(children, { isMuted });
 
   return (
     <Modal
@@ -38,7 +56,7 @@ const GameModal = ({ open, onClose, children }) => {
         }}>
           <Box sx={{ position: 'absolute', top: 8, right: 8 }}>
             <IconButton 
-              onClick={() => setIsMuted(!isMuted)}
+              onClick={handleMuteToggle}
               sx={{ mr: 1, color: '#0f0' }}
             >
               {isMuted ? <VolumeOffIcon /> : <VolumeUpIcon />}
@@ -50,7 +68,7 @@ const GameModal = ({ open, onClose, children }) => {
               <CloseIcon />
             </IconButton>
           </Box>
-          {children}
+          {childrenWithProps}
         </Box>
       </Fade>
     </Modal>
