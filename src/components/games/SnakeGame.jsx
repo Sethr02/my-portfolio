@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { setSecureItem, getSecureItem } from '../../utils/storage';
+import LeaderboardDisplay from './LeaderboardDisplay';
+import NameEntry from './NameEntry';
 
 const GRID_SIZE = 20;
 const CELL_SIZE = 20;
@@ -33,6 +35,20 @@ const setHighScore = (score) => {
   setSecureItem('snakeHighScore', score);
 };
 
+const getLeaderboard = () => {
+  return getSecureItem('snakeLeaderboard', []);
+};
+
+const addLeaderboardEntry = (score, name) => {
+  const leaderboard = getLeaderboard();
+  const newEntry = { score, name, date: Date.now() };
+  const newLeaderboard = [...leaderboard, newEntry]
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5); // Keep top 5 scores
+  setSecureItem('snakeLeaderboard', newLeaderboard);
+  return newLeaderboard;
+};
+
 const SnakeGame = ({ isMuted }) => {
   const canvasRef = useRef(null);
   const animationRef = useRef(null);
@@ -46,20 +62,40 @@ const SnakeGame = ({ isMuted }) => {
   const [deathTime, setDeathTime] = useState(null);
   const [speed, setSpeed] = useState(INITIAL_SPEED);
   const [foodSize, setFoodSize] = useState(1);
+  const [leaderboard, setLeaderboard] = useState(getLeaderboard);
+  const [showNameEntry, setShowNameEntry] = useState(false);
+
+  const getValidFoodPosition = () => {
+    const occupiedPositions = new Set(
+      snake.map(segment => `${segment.x},${segment.y}`)
+    );
+
+    let x, y;
+    do {
+      x = Math.floor(Math.random() * GRID_SIZE);
+      y = Math.floor(Math.random() * GRID_SIZE);
+    } while (occupiedPositions.has(`${x},${y}`));
+
+    return { x, y };
+  };
 
   const resetGame = () => {
+    const initialSnake = [{ x: 10, y: 10 }];
     setScore(0);
     setGameOver(false);
-    setSnake([{ x: 10, y: 10 }]);
+    setSnake(initialSnake);
     setDirection('RIGHT');
-    setFood({ x: 15, y: 15 });
+    setFood(getValidFoodPosition());
     setLastMoveTime(Date.now());
     setDeathTime(null);
     setSpeed(INITIAL_SPEED);
     setFoodSize(1);
+    setShowNameEntry(false);
   };
 
   const handleKeyPress = (e) => {
+    if (showNameEntry) return; // Ignore game controls during name entry
+
     switch (e.key.toLowerCase()) {
       case 'arrowup':
       case 'w':
@@ -136,6 +172,9 @@ const SnakeGame = ({ isMuted }) => {
     if (newSnake.slice(1).some(segment => segment.x === head.x && segment.y === head.y)) {
       setDeathTime(Date.now());
       setGameOver(true);
+      if (score > 0) {
+        setShowNameEntry(true);
+      }
       if (score > highScore) {
         setHighScore(score);
         setHighScoreState(score);
@@ -152,10 +191,7 @@ const SnakeGame = ({ isMuted }) => {
       setSpeed(Math.max(MIN_SPEED, INITIAL_SPEED - score * SPEED_INCREMENT));
       // Set random food size
       setFoodSize(MIN_FOOD_SIZE + Math.random() * (1 - MIN_FOOD_SIZE));
-      setFood({
-        x: Math.floor(Math.random() * GRID_SIZE),
-        y: Math.floor(Math.random() * GRID_SIZE),
-      });
+      setFood(getValidFoodPosition());
     } else {
       newSnake.pop();
     }
@@ -171,8 +207,15 @@ const SnakeGame = ({ isMuted }) => {
     }
   };
 
+  const handleNameSubmit = (name) => {
+    const newLeaderboard = addLeaderboardEntry(score, name);
+    setLeaderboard(newLeaderboard);
+    setShowNameEntry(false);
+  };
+
   useEffect(() => {
     migrateFromCookies(); // Only need to run once
+    setLeaderboard(getLeaderboard());
   }, []);
 
   useEffect(() => {
@@ -209,7 +252,7 @@ const SnakeGame = ({ isMuted }) => {
         }}
       />
 
-      {gameOver && (
+      {gameOver && !showNameEntry && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="h5" color="#f00">Game Over!</Typography>
           {score === highScore && score > 0 && (
@@ -229,6 +272,15 @@ const SnakeGame = ({ isMuted }) => {
           </Button>
         </Box>
       )}
+
+      {showNameEntry && (
+        <NameEntry 
+          onComplete={handleNameSubmit} 
+          stopPropagation={true}
+        />
+      )}
+
+      <LeaderboardDisplay entries={leaderboard} />
     </Box>
   );
 };
